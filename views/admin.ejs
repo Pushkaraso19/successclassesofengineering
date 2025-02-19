@@ -1,0 +1,101 @@
+<%- include("./partials/header.ejs") %>
+<main class=container>
+<div class=card>
+<h2 class=card-title>Admin Panel</h2>
+<div class=admin-section>
+<h3>Batches</h3>
+<table class=admin-table>
+<thead>
+<tr>
+<th>Batch ID</th>
+<th>Batch Name</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody>
+<% batches.forEach(function(batch, index) { %>
+<tr>
+<td><%= index + 1 %></td>
+<td>
+<input id="batch-name-<%= batch.id %>" value="<%= batch.batch_name %>" class=form-control readonly>
+</td>
+<td>
+<button class=btn onclick="editBatch(<%= batch.id %>)">Edit</button>
+<button class="btn btn-success" onclick="saveBatch(<%= batch.id %>)" style=display:none>Save</button>
+<button type=button class="btn btn-danger" onclick="deleteBatch(<%= batch.id %>)">Delete</button>
+</td>
+</tr>
+<% }); %>
+</tbody>
+</table>
+<form action=/admin/batches method=post class=form-row>
+<label for=new-batch-name>New Batch Name</label>
+<input id=batch-name name=new-batch_name class=form-control required>
+<button type=submit class=btn>Add Batch</button>
+</form>
+</div>
+<div class=admin-section>
+<h3>Academic Years</h3>
+<table class=admin-table>
+<thead>
+<tr>
+<th>Year ID</th>
+<th>Year</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody>
+<% academicYears.forEach(function(year, index) { %>
+<tr>
+<td><%= index + 1 %></td>
+<td>
+<input id="year-<%= year.id %>" value="<%= year.year %>" class=form-control readonly>
+</td>
+<td>
+<button class=btn onclick="editYear(<%= year.id %>)">Edit</button>
+<button class="btn btn-success" onclick="saveYear(<%= year.id %>)" style=display:none>Save</button>
+<button type=button class="btn btn-danger" onclick="deleteAcademicYear(<%= year.id %>)">Delete</button>
+</td>
+</tr>
+<% }); %>
+</tbody>
+</table>
+<form action=/admin/academic-years method=post class=form-row>
+<label for=new-academic-year>New Academic Year:</label>
+<input inputmode=numeric id=new-academic-year name=academic_year class=form-control required>
+<button type=submit class=btn>Add Year</button>
+</form>
+</div>
+<div class=admin-section>
+<h3>Set Actual Amount</h3>
+<form id=setFeesForm action=/admin/set-fees method=POST>
+<div class=form-row>
+<div class=form-group>
+<label for=academic-year>Academic Year</label>
+<select id=academic-year name=academic_year_id class=form-control required>
+<option value="">Select Academic Year</option>
+<% academicYears.forEach(function(year) { %>
+<option value="<%= year.id %>"><%= year.year %></option>
+<% }); %>
+</select>
+</div>
+<div class=form-group>
+<label for=batch>Batch (Optional)</label>
+<select id=batch name=batch_id class=form-control>
+<option value="">Select Batch</option>
+<% batches.forEach(function(batch) { %>
+<option value="<%= batch.id %>"><%= batch.batch_name %></option>
+<% }); %>
+</select>
+</div>
+<div class=form-group>
+<label for=actual-amount>Actual Amount</label>
+<input type=number id=actual-amount name=actual_amount class=form-control required>
+</div>
+</div>
+<button type=submit class=btn>Set Fees</button>
+</form>
+</div>
+</div>
+</main>
+<%- include("./partials/footer.ejs") %>
