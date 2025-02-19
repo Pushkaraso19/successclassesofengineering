@@ -1,12 +1,13 @@
 <%- include('partials/header.ejs') %>
-<main class=container>
-<div class=error-content>
-<h1 class=error-code><%= status || 500 %></h1>
-<h2 class=error-title><%= title || 'Error' %></h2>
-<p class=error-message><%= message || 'Something went wrong!' %></p>
-<form action=/ >
-<button class=btn>Return to Home</button>
-</form>
-</div>
+<main class="container">
+    <div class="error-content">
+        <h1 class="error-code"><%= status || 500 %></h1>
+        <h2 class="error-title"><%= title || 'Error' %></h2>
+        <p class="error-message"><%= message || 'Something went wrong!' %></p>
+        <form action="/" method="get">
+            <button class="btn">Return to Home</button>
+        </form>
+        
+    </div>
 </main>
 <%- include('partials/footer.ejs') %>

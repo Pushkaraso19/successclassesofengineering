@@ -1,73 +1,73 @@
 <%- include("./partials/header.ejs") %>
-<main class=container>
-<div class=card>
-<h2 class=card-title>Edit Student</h2>
-<form action="/students/<%= student.id %>/edit" method=POST>
-<div class=form-row>
-<div class=form-group>
-<label for=name>Student Name</label>
-<input id=name name=name class=form-control value="<%= student.name %>" required>
-</div>
-<div class=form-group>
-<label for=contact>Contact Number</label>
-<input type=tel id=contact name=contact class=form-control value="<%= student.contact %>" required>
-</div>
-</div>
-<div class=form-row>
-<div class=form-group>
-<label for=academic-year>Academic Year</label>
-<select id=academic-year name=academic_year_id class=form-control required>
-<option value="">Select Academic Year</option>
-<% academicYears.forEach(function(year) { %>
-<option value="<%= year.id %>" <%= year.id == student.academic_year_id ? 'selected' : '' %>><%= year.year %></option>
-<% }); %>
-</select>
-</div>
-<div class=form-group>
-<label for=batch>Batch</label>
-<select id=batch name=batch_id class=form-control required>
-<option value="">Select Batch</option>
-<% batches.forEach(function(batch) { %>
-<option value="<%= batch.id %>" <%= batch.id == student.batch_id ? 'selected' : '' %>><%= batch.batch_name %></option>
-<% }); %>
-</select>
-</div>
-</div>
-<div class=form-row>
-<div class=form-group>
-<label for=closing-amount>Closing Amount</label>
-<input type=number id=closing-amount name=closing_amount class=form-control value="<%= student.closing_amount %>">
-</div>
-<div class=form-group>
-<label for=actual-amount>Actual Amount</label>
-<input type=number id=actual-amount name=actual_amount_id class=form-control value="<%= student.actual_amount %>">
-</div>
-</div>
-<div class=form-row>
-<div class=form-group>
-<label for=fees-paid>Fees Paid</label>
-<input type=number id=fees-paid name=fees_paid class=form-control value="<%= student.fees_paid %>" required>
-</div>
-<div class=form-group>
-<label for=fees-pending>Fees Pending</label>
-<input type=number id=fees-pending name=fees_pending class=form-control value="<%= student.fees_pending %>" required>
-</div>
-</div>
-<div class=form-row>
-<div class=form-group>
-<label for=last-payment-date>Last Payment Date</label>
-<input type=date id=last-payment-date name=last_payment_date class=form-control value="<%= student.last_payment_date.toISOString().split('T')[0] %>" required>
-</div>
-<div class=form-group>
-<label for=next-installment-date>Next Installment Date</label>
-<input type=date id=next-installment-date name=next_installment_date class=form-control value="<%= student.next_installment_date ? student.next_installment_date.toISOString().split('T')[0] : '' %>">
-</div>
-</div>
-<div class="form-row button-row">
-<button type=submit class=btn>Save Changes</button>
-<button type=button class="btn btn-danger" onclick="deleteStudent(<%= student.id %>)">Delete Student</button>
-</div>
-</form>
-</div>
+<main class="container">
+    <div class="card">
+        <h2 class="card-title">Edit Student</h2>
+        <form action="/students/<%= student.id %>/edit" method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Student Name</label>
+                    <input type="text" id="name" name="name" class="form-control" value="<%= student.name %>" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact">Contact Number</label>
+                    <input type="tel" id="contact" name="contact" class="form-control" value="<%= student.contact %>" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="academic-year">Academic Year</label>
+                    <select id="academic-year" name="academic_year_id" class="form-control" required>
+                        <option value="">Select Academic Year</option>
+                        <% academicYears.forEach(function(year) { %>
+                            <option value="<%= year.id %>" <%= year.id == student.academic_year_id ? 'selected' : '' %>><%= year.year %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="batch">Batch</label>
+                    <select id="batch" name="batch_id" class="form-control" required>
+                        <option value="">Select Batch</option>
+                        <% batches.forEach(function(batch) { %>
+                            <option value="<%= batch.id %>" <%= batch.id == student.batch_id ? 'selected' : '' %>><%= batch.batch_name %></option>
+                        <% }); %>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="closing-amount">Closing Amount</label>
+                    <input type="number" id="closing-amount" name="closing_amount" class="form-control" value="<%= student.closing_amount %>">
+                </div>
+                <div class="form-group">
+                    <label for="actual-amount">Actual Amount</label>
+                    <input type="number" id="actual-amount" name="actual_amount_id" class="form-control" value="<%= student.actual_amount %>">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fees-paid">Fees Paid</label>
+                    <input type="number" id="fees-paid" name="fees_paid" class="form-control" value="<%= student.fees_paid %>" required>
+                </div>
+                <div class="form-group">
+                    <label for="fees-pending">Fees Pending</label>
+                    <input type="number" id="fees-pending" name="fees_pending" class="form-control" value="<%= student.fees_pending %>" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="last-payment-date">Last Payment Date</label>
+                    <input type="date" id="last-payment-date" name="last_payment_date" class="form-control" value="<%= student.last_payment_date.toISOString().split('T')[0] %>" required>
+                </div>
+                <div class="form-group">
+                    <label for="next-installment-date">Next Installment Date</label>
+                    <input type="date" id="next-installment-date" name="next_installment_date" class="form-control" value="<%= student.next_installment_date ? student.next_installment_date.toISOString().split('T')[0] : '' %>">
+                </div>
+            </div>
+            <div class="form-row button-row">
+                <button type="submit" class="btn">Save Changes</button>
+                <button type="button" class="btn btn-danger" onclick="deleteStudent(<%= student.id %>)">Delete Student</button>
+            </div>
+        </form>
+    </div>
 </main>
 <%- include("./partials/footer.ejs") %>
