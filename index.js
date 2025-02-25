@@ -2,7 +2,6 @@ import express from "express";
 import pg from "pg";
 import env from "dotenv";
 import methodOverride from "method-override";
-import cron from "node-cron";
 import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
 import session from "express-session";
@@ -247,7 +246,7 @@ async function sendEmailWithStudentDetails() {
     }
 }
 
-cron.schedule('0 8 * * *', async () => {
+app.get('/63726F6E4A6F6253656E64456D61696C', async () => {
     try {
         await sendEmailWithStudentDetails();
     } catch (error) {
