@@ -246,9 +246,10 @@ async function sendEmailWithStudentDetails() {
     }
 }
 
-app.get('/63726F6E4A6F6253656E64456D61696C', async () => {
+app.get('/63726F6E4A6F6253656E64456D61696C', async (req, res) => {
     try {
         await sendEmailWithStudentDetails();
+        res.status(200).send("Email Sent Successfully!");
     } catch (error) {
         logger.error('Error sending email with student details:', error.message);
     }
