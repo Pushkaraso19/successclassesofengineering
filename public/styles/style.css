@@ -208,6 +208,30 @@ body {
     background: var(--hover-color);
 }
 
+
+.filter input[type="text"] {
+    width: 250px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+.search button {
+    padding: 8px 12px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search button:hover {
+    background-color: var(--hover-color);
+}
+
 .card {
     background-color: white;
     border-radius: 8px;
@@ -297,23 +321,38 @@ body {
 
 .student-list {
     margin-top: 20px;
+    overflow-x: auto;
+    max-height: 100vh;
+    position: relative;
+    padding-top: 0;
 }
 
 .student-list table {
     width: 100%;
+    min-width: 650px; 
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .student-list th, 
 .student-list td {
     border: 1px solid #ddd;
-    padding: 10px 15px;
+    padding: 10px 10px;
     text-align: left;
 }
 
 .student-list th {
     background-color: var(--primary-color);
     color: var(--background-color);
+}
+
+.sticky-header thead th {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    margin: 0; /* Ensure no margin */
+    padding: 5px 10px;
+    border: 1px solid #ddd;
 }
 
 .sortable {
@@ -638,4 +677,197 @@ input[type="checkbox"]:hover {
     font-size: 1.5rem;
     color: #555;
     margin: 1.5rem 0 2rem 0;
+}
+
+/* General responsiveness */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        padding: 10px;
+    }
+    
+    .logo {
+        margin-bottom: 10px;
+    }
+    
+    .nav-menu {
+        width: 99%;
+        justify-content: space-around;
+        margin-bottom: 10px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .add-student-container {
+        max-width: 100%;
+        padding: 10px;
+    }
+    
+    .login-container {
+        max-width: 100%;
+        margin: 20px auto;
+        padding: 20px;
+    }
+    
+    .card {
+        padding: 15px;
+    }
+    
+    .card-title {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .card-title h2 {
+        margin-bottom: 10px;
+    }
+    
+    .filter {
+        padding: 10px;
+        box-shadow: none;
+    }
+    
+    .filter label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    .filter select,
+    .filter button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .student-list table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .student-list table {
+        min-width: 650px;
+    }
+
+    .student-list th,
+    .student-list td {
+        white-space: nowrap;
+    }
+    
+    .student-list th {
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+    
+    .student-list td {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Table responsiveness */
+@media (max-width: 768px) {
+    .student-list table,
+    .admin-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .student-list th,
+    .admin-table th,
+    .student-list td,
+    .admin-table td {
+        white-space: nowrap;
+    }
+}
+
+/* Header and footer responsiveness */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .footer {
+        padding: 10px;
+        text-align: center;
+    }
+    
+    .footer-container {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* Admin page responsiveness */
+@media (max-width: 768px) {
+    .admin-section {
+        padding: 10px;
+    }
+    
+    .admin-section h3 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+    
+    .admin-table {
+        min-width: 100%;
+        overflow-x: auto;
+    }
+    
+    .admin-table th,
+    .admin-table td {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .form-group {
+        width: 100%;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        font-size: 1rem;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 1rem;
+        margin-top: 10px;
+    }
+    
+    .actions-column {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+
+/* Filter form responsiveness */
+@media (max-width: 768px) {
+    .filter {
+        padding: 10px;
+        box-shadow: none;
+    }
+    
+    .filter label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    .filter select,
+    .filter button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
 }

@@ -141,7 +141,7 @@ async function getBatches() {
 
 async function sendEmailWithStudentDetails() {
     const result = await pool.query(`
-        SELECT s.name, s.contact, s.fees_paid, s.fees_pending, s.closing_amount, a.actual_amount, s.last_payment_date, s.next_installment_date
+        SELECT s.name, s.student_contact, s.parent_contact, s.fees_paid, s.fees_pending, s.closing_amount, a.actual_amount, s.last_payment_date, s.next_installment_date
         FROM students s
         LEFT JOIN actual_amounts a ON s.actual_amount_id = a.id  
         WHERE s.next_installment_date = CURRENT_DATE + INTERVAL '8 days'
@@ -173,7 +173,7 @@ async function sendEmailWithStudentDetails() {
             await transporter.sendMail(noDueMailOptions);
             logger.info('No due email sent successfully.');
         } catch (error) {
-            logger.error(`Error sending no-due notification:`, error.message);
+            logger.error(`Error sending no-due notification: ${error.message}`);
         }
         return;
     }
@@ -184,7 +184,8 @@ async function sendEmailWithStudentDetails() {
             <thead>
                 <tr style="background-color: #f2f2f2;">
                     <th>Name</th>
-                    <th>Contact</th>
+                    <th>Student Contact</th>
+                    <th>Parent Contact</th>
                     <th>Fees Paid</th>
                     <th>Fees Pending</th>
                     <th>Closing Amount</th>
@@ -200,7 +201,8 @@ async function sendEmailWithStudentDetails() {
         emailContent += `
             <tr>
                 <td>${student.name}</td>
-                <td>${student.contact}</td>
+                <td>${student.student_contact}</td>
+                <td>${student.parent_contact}</td>
                 <td>${student.fees_paid}</td>
                 <td>${student.fees_pending}</td>
                 <td>${student.closing_amount}</td>
@@ -235,14 +237,14 @@ async function sendEmailWithStudentDetails() {
                 logger.info('Email sent successfully.');
             } catch (error) {
                 attempt++;
-                logger.error(`Attempt ${attempt} - Error sending email:`, error.message);
+                logger.error(`Attempt ${attempt} - Error sending email: ${error.message}`);
                 if (attempt >= maxRetries) {
                     logger.error('Max retries reached. Failed to send email.');
                 }
             }
         }
     } catch (error) {
-        logger.error(`Error sending email:`, error.message);
+        logger.error(`Error sending email: ${error.message}`);
     }
 }
 
@@ -275,7 +277,8 @@ app.get('/', ensureAuthenticated, async (req, res, next) => {
             students: studentsResult.rows,
             academicYearSelected: null,
             batchSelected: null,
-            callTypeSelected: null
+            callTypeSelected: null,
+            searchQuery: null
         });
     } catch (error) {
         logger.error('Error fetching data for home page:', error.message);
@@ -284,7 +287,6 @@ app.get('/', ensureAuthenticated, async (req, res, next) => {
         return next(error); 
     }
 });
-
 
 app.get("/login", redirectIfAuthenticated, async (req, res) => {
     try {
@@ -527,26 +529,41 @@ app.get("/logout", (req, res, next) => {
 
 app.get('/filter-students', ensureAuthenticated, async (req, res) => {
     try {
-        const { academic_year, batch, call_type } = req.query;
+        const { academic_year, batch, call_type, query } = req.query;
+        const searchQuery = query ? `%${query}%` : null;
 
-        let query = `
-            SELECT s.*, ay.year, b.batch_name, a.actual_amount
+        let queryText = `
+            SELECT s.*, ay.year, b.batch_name, COALESCE(a.actual_amount, 0) AS actual_amount
             FROM students s
             JOIN academic_years ay ON s.academic_year_id = ay.id
             LEFT JOIN batches b ON s.batch_id = b.id
-            LEFT JOIN actual_amounts a ON s.actual_amount_id = a.id 
-            WHERE s.academic_year_id = $1
+            LEFT JOIN actual_amounts a ON s.actual_amount_id = a.id
+            WHERE 1 = 1
         `;
-        let params = [academic_year];
 
-        if (batch && batch !== '') {
-            query += ' AND s.batch_id = $2';
+        let params = [];
+        let index = 1;
+
+        // Apply filters if provided
+        if (academic_year) {
+            queryText += ` AND s.academic_year_id = $${index++}`;
+            params.push(academic_year);
+        }
+
+        if (batch) {
+            queryText += ` AND s.batch_id = $${index++}`;
             params.push(batch);
         }
 
-        const studentsResult = await pool.query(query, params);
+        if (searchQuery) {
+            queryText += ` AND (s.name ILIKE $${index} OR s.student_contact::text ILIKE $${index} OR s.parent_contact::text ILIKE $${index})`;
+            params.push(searchQuery);
+        }
+
+        const studentsResult = await pool.query(queryText, params);
         const academicYearsResult = await getAcademicYears();
         const batchesResult = await getBatches();
+
         res.render('index.ejs', {
             pageTitle: 'Home',
             academicYears: academicYearsResult,
@@ -554,12 +571,12 @@ app.get('/filter-students', ensureAuthenticated, async (req, res) => {
             students: studentsResult.rows,
             academicYearSelected: academic_year,
             batchSelected: batch,
-            callTypeSelected: call_type
+            callTypeSelected: call_type,
+            searchQuery: query
         });
     } catch (error) {
         logger.error('Error filtering students:', error.message);
         res.status(500).send('Error filtering students: ' + error.message);
-        res.redirect(`/error=${encodeURIComponent("Error Filtering Students")}`);
     }
 });
 
@@ -608,7 +625,7 @@ app.get('/get-actualamount', ensureAuthenticated, async (req, res) => {
 
 app.post('/student/add', ensureAuthenticated, async (req, res) => {
     try {
-        const { name, contact, academic_year_id, batch_id, fees_paid, fees_pending, closing_amount, last_payment_date, next_installment_date } = req.body;
+        const { name, student_contact, parent_contact, academic_year_id, batch_id, fees_paid, fees_pending, closing_amount, last_payment_date, next_installment_date } = req.body;
 
         if(fees_pending != 0 && next_installment_date == "") {
             logger.warn("Attempt to add student without next installment date.");
@@ -623,12 +640,12 @@ app.post('/student/add', ensureAuthenticated, async (req, res) => {
 
         const actual_amount_id = actualAmountResult.rows[0].id;
         const query = `
-            INSERT INTO students (name, contact, academic_year_id, batch_id, fees_paid, fees_pending, closing_amount, actual_amount_id, last_payment_date, next_installment_date)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            INSERT INTO students (name, student_contact, parent_contact, academic_year_id, batch_id, fees_paid, fees_pending, closing_amount, actual_amount_id, last_payment_date, next_installment_date)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             RETURNING id
         `;
 
-        const values = [name, contact, academic_year_id, batch_id, fees_paid, fees_pending, closing_amount, actual_amount_id, last_payment_date, fees_pending > 0 ? next_installment_date : null];
+        const values = [name, student_contact, parent_contact, academic_year_id, batch_id, fees_paid, fees_pending, closing_amount, actual_amount_id, last_payment_date, fees_pending > 0 ? next_installment_date : null];
 
         await pool.query(query, values);
 
@@ -669,20 +686,20 @@ app.get('/students/:id/edit', ensureAuthenticated, async (req, res) => {
 app.post('/students/:id/edit', ensureAuthenticated, async (req, res) => {
     try {
         const { id } = req.params;
-        let { name, contact, academic_year_id, batch_id, fees_paid, fees_pending, last_payment_date, next_installment_date } = req.body;
+        let { name, student_contact, parent_contact, academic_year_id, batch_id, fees_paid, fees_pending, last_payment_date, next_installment_date } = req.body;
         if (fees_pending == 0) {
             next_installment_date = null;
         }
         await pool.query(`
             UPDATE students
-            SET name = $1, contact = $2, academic_year_id = $3, batch_id = $4, fees_paid = $5, last_payment_date = $6, fees_pending = $7, next_installment_date = $8
-            WHERE id = $9
-        `, [name, contact, academic_year_id, batch_id, fees_paid, last_payment_date, fees_pending, next_installment_date, id]);
+            SET name = $1, student_contact = $2, parent_contact = $3, academic_year_id = $4, batch_id = $5, fees_paid = $6, last_payment_date = $7, fees_pending = $8, next_installment_date = $9
+            WHERE id = $10
+        `, [name, student_contact, parent_contact, academic_year_id, batch_id, fees_paid, last_payment_date, fees_pending, next_installment_date, id]);
 
         res.redirect(`/?success=${encodeURIComponent('Student data edited successfully')}`);
     } catch (error) {
         logger.error('Error updating student:', error.message);
-        res.redirect(`/error=${encodeURIComponent("Error updating student! Please try again.")}`);
+        res.redirect(`/?error=${encodeURIComponent("Error updating student! Please try again.")}`);
     }
 });
 
@@ -693,7 +710,7 @@ app.delete('/students/:id/delete', ensureAuthenticated, async (req, res) => {
         res.redirect(`/?success=${encodeURIComponent('Student deleted successfully')}`);
     } catch (error) {
         logger.error('Error deleting student:', error.message);
-        res.redirect(`/error=${encodeURIComponent("Error deleting student! Please try again.")}`);
+        res.redirect(`/?error=${encodeURIComponent("Error deleting student! Please try again.")}`);
     }
 });
 

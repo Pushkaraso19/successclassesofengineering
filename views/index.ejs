@@ -1,31 +1,36 @@
 <%- include("./partials/header.ejs") %>
 <main class="container">
-    <form method="GET" action="/filter-students" class="filter">
-        <label for="academic_year">Academic Year:</label>
-        <select name="academic_year" id="academic_year" required>
-            <option value="">Select Year</option>
-            <% academicYears.forEach(function(year) { %>
-                <option value="<%= year.id %>" <%= year.id == academicYearSelected ? 'selected' : '' %>><%= year.year %></option>
-            <% }); %>
-        </select>
-    
-        <label for="batch">Batch:</label>
-        <select name="batch" id="batch">
-            <option value="">Select Batch</option>
-            <% batches.forEach(function(batch) { %>
-                <option value="<%= batch.id %>" <%= batch.id == batchSelected ? 'selected' : '' %>><%= batch.batch_name %></option>
-            <% }); %>
-        </select>
+    <div class="filter-search-container">
+        <form method="GET" action="/filter-students" class="filter">
+            <label for="academic_year">Academic Year:</label>
+            <select name="academic_year" id="academic_year">
+                <option value="">Select Year</option>
+                <% academicYears.forEach(function(year) { %>
+                    <option value="<%= year.id %>" <%= year.id == academicYearSelected ? 'selected' : '' %>><%= year.year %></option>
+                <% }); %>
+            </select>
+        
+            <label for="batch">Batch:</label>
+            <select name="batch" id="batch">
+                <option value="">Select Batch</option>
+                <% batches.forEach(function(batch) { %>
+                    <option value="<%= batch.id %>" <%= batch.id == batchSelected ? 'selected' : '' %>><%= batch.batch_name %></option>
+                <% }); %>
+            </select>
 
-        <label for="call_type">Call Type:</label>
-        <select name="call_type" id="call_type">
-            <option value="">Select Call Type</option>
-            <option value="fees" <%= callTypeSelected == 'fees' ? 'selected' : '' %>>Fees</option>
-            <option value="review" <%= callTypeSelected == 'review' ? 'selected' : '' %>>Review</option>
-        </select>
-    
-        <button type="submit">Filter</button>
-    </form>
+            <label for="call_type">Call Type:</label>
+            <select name="call_type" id="call_type">
+                <option value="">Select Call Type</option>
+                <option value="fees" <%= callTypeSelected == 'fees' ? 'selected' : '' %>>Fees</option>
+                <option value="review" <%= callTypeSelected == 'review' ? 'selected' : '' %>>Review</option>
+            </select>
+
+            <label for="search">Search:</label>
+            <input type="text" name="search" placeholder="Search by name or contact" value="<%= searchQuery || '' %>">
+            
+            <button type="submit">Search & Filter</button>
+        </form>
+    </div>
     
     <div class="card student-list">
         <h2 class="card-title">
@@ -34,33 +39,34 @@
         </h2>
         
         <% if (students && students.length > 0) { %>
-            <table id="studentsTable" data-sort-order="asc">
+            <table id="studentsTable" class="sticky-header" data-sort-order="asc">
                 <thead>
                     <tr>
                         <th class="sortable asc" onclick="sortTable(0)">Sr.No</th>
                         <th class="sortable" onclick="sortTable(1)">Name</th>
-                        <th class="sortable" onclick="sortTable(2)">Contact</th>
+                        <th class="sortable" onclick="sortTable(2)">Student Contact</th>
+                        <th class="sortable" onclick="sortTable(3)">Parent Contact</th>
                         <% if (callTypeSelected === 'fees') { %>
-                            <th class="sortable" onclick="sortTable(3)">Last Payment Date</th>
-                            <th class="sortable" onclick="sortTable(4)">Fees Paid</th>
-                            <th class="sortable" onclick="sortTable(5)">Fees Pending</th>
-                            <th class="sortable" onclick="sortTable(6)">Closing Amount</th>
-                            <th class="sortable" onclick="sortTable(7)">Actual Amount</th>
-                            <th class="sortable" onclick="sortTable(8)">Next Installment Date</th>
+                            <th class="sortable" onclick="sortTable(4)">Last Payment Date</th>
+                            <th class="sortable" onclick="sortTable(5)">Fees Paid</th>
+                            <th class="sortable" onclick="sortTable(6)">Fees Pending</th>
+                            <th class="sortable" onclick="sortTable(7)">Closing Amount</th>
+                            <th class="sortable" onclick="sortTable(8)">Actual Amount</th>
+                            <th class="sortable" onclick="sortTable(9)">Next Installment Date</th>
                             <th>Call Done</th>
                         <% } else if (callTypeSelected === 'review') { %>
-                            <th class="sortable" onclick="sortTable(3)">Academic Year</th>
-                            <th class="sortable" onclick="sortTable(4)">Batch</th>
+                            <th class="sortable" onclick="sortTable(4)">Academic Year</th>
+                            <th class="sortable" onclick="sortTable(5)">Batch</th>
                             <th>Call Done</th>
                         <% } else { %>
-                            <th class="sortable" onclick="sortTable(3)">Academic Year</th>
-                            <th class="sortable" onclick="sortTable(4)">Batch</th>  
-                            <th class="sortable" onclick="sortTable(5)">Last Payment Date</th>
-                            <th class="sortable" onclick="sortTable(6)">Fees Paid</th>
-                            <th class="sortable" onclick="sortTable(7)">Fees Pending</th>
-                            <th class="sortable" onclick="sortTable(8)">Closing Amount</th>
-                            <th class="sortable" onclick="sortTable(9)">Actual Amount</th>
-                            <th class="sortable" onclick="sortTable(10)">Next Installment Date</th>
+                            <th class="sortable" onclick="sortTable(4)">Academic Year</th>
+                            <th class="sortable" onclick="sortTable(5)">Batch</th>  
+                            <th class="sortable" onclick="sortTable(6)">Last Payment Date</th>
+                            <th class="sortable" onclick="sortTable(7)">Fees Paid</th>
+                            <th class="sortable" onclick="sortTable(8)">Fees Pending</th>
+                            <th class="sortable" onclick="sortTable(9)">Closing Amount</th>
+                            <th class="sortable" onclick="sortTable(10)">Actual Amount</th>
+                            <th class="sortable" onclick="sortTable(11)">Next Installment Date</th>
                         <% } %>
                         <th>Edit</th>
                     </tr>
@@ -70,7 +76,8 @@
                         <tr>
                             <td><%= index + 1 %></td>
                             <td><%= student.name %></td>
-                            <td><%= student.contact %></td>
+                            <td><%= student.student_contact %></td>
+                            <td><%= student.parent_contact %></td>
                             <% if (callTypeSelected === 'fees') { %>
                                 <td><%= new Date(student.last_payment_date).toISOString().split('T')[0] %></td>
                                 <td><%= student.fees_paid %></td>
