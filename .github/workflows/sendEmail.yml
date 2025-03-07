@@ -1,0 +1,28 @@
+name: Send Email 
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Runs at 8 AM IST (2 AM UTC)
+
+jobs:
+  wakeup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render App with Delays
+        run: |
+          for i in {1..10}; do
+            echo "Attempt $i: Pinging Render..."
+            
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://successclassesofengineering.onrender.com/63726F6E4A6F6253656E64456D61696C)
+
+            if [ "$HTTP_STATUS" -eq 200 ]; then
+              echo "Render is awake! HTTP Status: $HTTP_STATUS"
+              exit 0
+            else
+              echo "Render is still asleep (HTTP $HTTP_STATUS). Retrying in 50 seconds..."
+              sleep 50
+            fi
+          done
+
+          echo "Render did not wake up after multiple attempts."
+          exit 1  
